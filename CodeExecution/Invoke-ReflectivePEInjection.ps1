@@ -976,10 +976,9 @@ $RemoteScriptBlock = {
         Write-Output $TypeBuilder.CreateType()
     }
 
-
-    #Function written by Matt Graeber, Twitter: @mattifestation, Blog: http://www.exploit-monday.com/
-    Function Get-ProcAddress
-    {
+  #Function written by 0xManhnv, Twitter: @0xmanhnv, Blog: https://manhnv.com
+  Function Get-ProcAddress
+  {
         Param
         (
             [OutputType([IntPtr])]
@@ -993,14 +992,14 @@ $RemoteScriptBlock = {
             $Procedure
         )
 
-        # Get a reference to System.dll in the GAC
-        $SystemAssembly = [AppDomain]::CurrentDomain.GetAssemblies() |
-            Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll') }
-        $UnsafeNativeMethods = $SystemAssembly.GetType('Microsoft.Win32.UnsafeNativeMethods')
-        # Get a reference to the GetModuleHandle and GetProcAddress methods
+        $UnsafeNativeMethods = ([AppDomain]::CurrentDomain.GetAssemblies() |
+            Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')
+
+        $tmp = @()
+        $UnsafeNativeMethods.GetMethods() | ForEach-Object { If ($_.Name -eq "GetProcAddress") { $tmp += $_ } }
+        $GetProcAddress = $tmp[1]
         $GetModuleHandle = $UnsafeNativeMethods.GetMethod('GetModuleHandle')
-        $GetProcAddress = $UnsafeNativeMethods.GetMethod('GetProcAddress')
-        # Get a handle to the module specified
+
         $Kern32Handle = $GetModuleHandle.Invoke($null, @($Module))
         $tmpPtr = New-Object IntPtr
         $HandleRef = New-Object System.Runtime.InteropServices.HandleRef($tmpPtr, $Kern32Handle)
