@@ -976,9 +976,9 @@ $RemoteScriptBlock = {
         Write-Output $TypeBuilder.CreateType()
     }
 
-  #Function written by 0xManhnv, Twitter: @0xmanhnv, Blog: https://manhnv.com
-  Function Get-ProcAddress
-  {
+    #Function written by 0xManhnv, Twitter: @0xmanhnv, Blog: https://manhnv.com
+    Function Get-ProcAddress
+    {
         Param
         (
             [OutputType([IntPtr])]
