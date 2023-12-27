@@ -995,9 +995,10 @@ $RemoteScriptBlock = {
         $UnsafeNativeMethods = ([AppDomain]::CurrentDomain.GetAssemblies() |
             Where-Object { $_.GlobalAssemblyCache -And $_.Location.Split('\\')[-1].Equals('System.dll') }).GetType('Microsoft.Win32.UnsafeNativeMethods')
 
-        $tmp = @()
-        $UnsafeNativeMethods.GetMethods() | ForEach-Object { If ($_.Name -eq "GetProcAddress") { $tmp += $_ } }
-        $GetProcAddress = $tmp[1]
+        $GetProcAddress = $UnsafeNativeMethods.GetMethods() | ForEach-Object {
+            If ($_.Name -eq "GetProcAddress" -and $_.GetCustomAttributes($null).CharSet -eq "Ansi" -and $_.GetCustomAttributes($null).ExactSpelling -eq $true) {$_}
+        }
+        
         $GetModuleHandle = $UnsafeNativeMethods.GetMethod('GetModuleHandle')
 
         $Kern32Handle = $GetModuleHandle.Invoke($null, @($Module))
